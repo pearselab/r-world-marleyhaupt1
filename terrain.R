@@ -1,5 +1,5 @@
-# Terrain is Cool!
-
+#' Makes a matrix with cell values corresponding to elevations
+#' 
 #' 
 
 #creates a matrix with odd dimensions and fills the matrix with NAs
