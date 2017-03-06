@@ -62,11 +62,8 @@ diamond.square.step <- function(dim){
   m <- start.matrix(dim)
   s <- dim-1
   while(s >= 1){ # s is for size of sub-matrix
-    cat("\ns=",s,"\n")
     for(i in seq(from=1, to=dim-1, by=s)){ #i is for the rows
-      cat("i=",i,"\n")
       for(j in seq(from=1, to=dim-1, by=s)){ #j is for the columns
-        cat("j=",j,"\n")
         m[i:(i+s), j:(j+s)] <- diamond.step(m[i:(i+s), j:(j+s)])
         m[i:(i+s), j:(j+s)] <- square.step(m[i:(i+s), j:(j+s)])
       }
