@@ -6,74 +6,79 @@
 start.matrix <- function(dim){
   #throws and error message if the dimensions of the matrix aren't odd
   if(dim %% 2 == 0){
-    stop("Matrix must have odd dimensions. Odd as in 'not even', not odd as in 'weird'")
+    stop("Matrix must have odd dimensions")
   }
-  matrix <- matrix(ncol=dim, nrow=dim)
+  m <- matrix(ncol=dim, nrow=dim)
   #populates the corners of the matrix with random values
-  matrix[1,1] <- rnorm(1, rnorm(1, 0, 1), runif(1, min=0))
-  matrix[1,dim] <- rnorm(1, rnorm(1, 0, 1), runif(1, min=0))
-  matrix[dim,1] <- rnorm(1, rnorm(1, 0, 1), runif(1, min=0))
-  matrix[dim,dim] <- rnorm(1, rnorm(1, 0, 1), runif(1, min=0))
-  return(terrain.matrix)
+  m[1,1] <- rnorm(1, rnorm(1, 0, 1), runif(1, min=0))
+  m[1,dim] <- rnorm(1, rnorm(1, 0, 1), runif(1, min=0))
+  m[dim,1] <- rnorm(1, rnorm(1, 0, 1), runif(1, min=0))
+  m[dim,dim] <- rnorm(1, rnorm(1, 0, 1), runif(1, min=0))
+  return(m)
 }
 
 #identifies and fills in the center cell of the matrix
-diamond.step <- function(matrix){ 
-  top.left <- matrix[1,1]
-  top.right <- matrix[1, ncol(matrix)]
-  bot.left <- matrix[nrow(matrix), 1]
-  bot.right <- matrix[nrow(matrix), ncol(matrix)]
-  middle <- ceiling(nrow(matrix)/2)
+diamond.step <- function(m){ 
+  tl <- m[1,1]
+  tr <- m[1, ncol(m)]
+  bl <- m[nrow(m), 1]
+  br <- m[nrow(m), ncol(m)]
+  mid <- ceiling(nrow(m)/2)
   #takes the averages of the corners and populates the center cell of the matrix with some noise
-  matrix [middle, middle] <- jitter(mean(c(top.left, top.right, bot.left, bot.right)))
-  return(matrix)
+  m[mid, mid] <- jitter(mean(c(tl, tr, bl, br)))
+  return(m)
 } 
 
 #populates the corners of the new smaller matrices by taking the average of nearby cells with values
-square.step <- function(matrix){
-  top.left <- matrix[1,1]
-  top.right <- matrix[1, ncol(matrix)]
-  bot.left <- matrix[nrow(matrix), 1]
-  bot.right <- matrix[nrow(matrix), ncol(matrix)]
-  middle <- ceiling(nrow(matrix)/2)
-  center <- matrix[middle, middle]
-  #calculates noisy average and populates the middle left cell
-  mid.left <- jitter(mean(c(top.left, center, bot.left)))
-  matrix[middle, 1] <- mid.left
-  #calculates noisy average and populates middle right cell
-  mid.right <- jitter(mean(c(top.right, center, bot.right))) 
-  matrix[middle, ncol(matrix)] <- mid.right
-  #calculates noisy average and populates middle top cell
-  mid.top <- jitter(mean(c(top.right, center, top.left)))
-  matrix[1, middle] <- mid.top
-  #calculates noisy average and populates middle bottom cell
-  mid.bot <- jitter(mean(c(bot.right, center, bot.left)))
-  matrix[nrow(matrix), middle] <- mid.bot
-  return(matrix)
+square.step <- function(m){
+  #assign names to key cells
+  tl <- m[1,1]
+  tr <- m[1, ncol(m)]
+  bl <- m[nrow(m), 1]
+  br <- m[nrow(m), ncol(m)]
+  mid <- ceiling(nrow(m)/2)
+  c <- m[mid, mid]
+  #calculate average and populate cells
+  ml <- jitter(mean(c(tl, c, bl)))
+  m[mid, 1] <- ml
+  mr <- jitter(mean(c(tr, c, br))) 
+  m[mid, ncol(m)] <- mr
+  mt <- jitter(mean(c(tr, c, tl)))
+  m[1, mid] <- mt
+  mb <- jitter(mean(c(br, c, bl)))
+  m[nrow(m), mid] <- mb
+  return(m)
 }
 
 diamond.square.step <- function(dim){
-  terrain.matrix <- start.matrix(dim)
+  m <- start.matrix(dim)
   #determines the maximum power of 2 based on the dimensions of the matrix specified
-  power <- (dim - 1)/2
-  for(stride in 2^power:1){
-    for(i in stride){ #for the rows
-      terrain.matrix <- diamond.step(terrain.matrix)
-      terrain.matrix <- square.step(terrain.matrix)
+  n <- (dim-1)/2
+  for(s in 2^(n:1)){
+    for(i in seq(from=1, to=s+1, by=s)){ #i is for the rows
+      for(j in seq(from=1, to=s+1, by=s)){ #j is for the columns
+        m[i:1+s, j:1+s] <- diamond.step(m[i:1+s, j:1+s])
+        m[i:1+s, j:1+s] <- square.step(m[i:1+s, j:1+s])
+      }
     }
-    for(j in stride){ #for the columns
-      terrain.matrix <- diamond.step(terrain.matrix)
-      terrain.matrix <- square.step(terrain.matrix)
-    }
-    #terrain.matrix[i:1+stride, j:1+stride]
   }
-  return(terrain.matrix)
+  return(m)
 }
 
-2^1, 2^2, 2^3, 2^4, etc....
-32, 16, 8, 4, 2
-2^1:5 or 2^5:1
-for(stride in 2^5:1)
-  for(i in stride) #rows
-    for(j in stride) #columns
-      matrix[i:1+stride, j:1+stride]
+terrain.func <- function(dim, lakes){ 
+  m <- diamond.square.step(dim)
+  #fills in the the cells of the matrix with NAs if the value is less than 0
+  if(lakes == TRUE){
+    for(i in 1:nrow(m)){ 
+      for(j in 1:ncol(m)){
+        if(m[i,j] < 0){
+          m[i,j] <- NA
+        }
+      }
+    }
+  }  
+  image(m)
+}
+
+  
+  
