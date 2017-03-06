@@ -8,6 +8,14 @@ start.matrix <- function(dim){
   if(dim %% 2 == 0){
     stop("Matrix must have odd dimensions")
   }
+  #error must be root 2 (i.e., 64 = 2*2*2*2*2*2 = 2^6)
+  i <- dim-1
+  while(i >= 1){
+    if(i != round(i)){
+      stop("Dimensions Must Be Perfect Square")
+    }  
+    i <- i/2
+  }
   m <- matrix(ncol=dim, nrow=dim)
   #populates the corners with random values
   m[1,1] <- rnorm(1, rnorm(1, 0, 1), runif(1, min=0))
@@ -52,15 +60,18 @@ square.step <- function(m){
 
 diamond.square.step <- function(dim){
   m <- start.matrix(dim)
-  #maximum power of 2 for the dimensions
-  n <- (dim-1)/2
-  for(s in 2^(n:1)){
-    for(i in seq(from=1, to=s+1, by=s)){ #i is for the rows
-      for(j in seq(from=1, to=s+1, by=s)){ #j is for the columns
-        m[i:1+s, j:1+s] <- diamond.step(m[i:1+s, j:1+s])
-        m[i:1+s, j:1+s] <- square.step(m[i:1+s, j:1+s])
+  s <- dim-1
+  while(s >= 1){ # s is for size of sub-matrix
+    cat("\ns=",s,"\n")
+    for(i in seq(from=1, to=dim-1, by=s)){ #i is for the rows
+      cat("i=",i,"\n")
+      for(j in seq(from=1, to=dim-1, by=s)){ #j is for the columns
+        cat("j=",j,"\n")
+        m[i:(i+s), j:(j+s)] <- diamond.step(m[i:(i+s), j:(j+s)])
+        m[i:(i+s), j:(j+s)] <- square.step(m[i:(i+s), j:(j+s)])
       }
     }
+    s <- s/2
   }
   return(m)
 }
