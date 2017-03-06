@@ -54,10 +54,26 @@ square.step <- function(matrix){
 
 diamond.square.step <- function(dim){
   terrain.matrix <- start.matrix(dim)
-  terrain.matrix <- diamond.step(terrain.matrix)
-  terrain.matrix <- square.step(terrain.matrix)
-  half <- ceiling(nrow(terrain.matrix)/2)
-  #I need to incorporate a for loop in here somehow, but I'm not exactly sure how to do it
+  #determines the maximum power of 2 based on the dimensions of the matrix specified
+  power <- (dim - 1)/2
+  for(stride in 2^power:1){
+    for(i in stride){ #for the rows
+      terrain.matrix <- diamond.step(terrain.matrix)
+      terrain.matrix <- square.step(terrain.matrix)
+    }
+    for(j in stride){ #for the columns
+      terrain.matrix <- diamond.step(terrain.matrix)
+      terrain.matrix <- square.step(terrain.matrix)
+    }
+    #terrain.matrix[i:1+stride, j:1+stride]
+  }
+  return(terrain.matrix)
 }
 
-
+2^1, 2^2, 2^3, 2^4, etc....
+32, 16, 8, 4, 2
+2^1:5 or 2^5:1
+for(stride in 2^5:1)
+  for(i in stride) #rows
+    for(j in stride) #columns
+      matrix[i:1+stride, j:1+stride]
