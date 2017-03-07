@@ -8,11 +8,11 @@ start.matrix <- function(dim){
   if(dim %% 2 == 0){
     stop("Matrix must have odd dimensions")
   }
-  #error must be root 2 (i.e., 64 = 2*2*2*2*2*2 = 2^6)
+  #error must be a power of 2 (i.e., 64 = 2*2*2*2*2*2 = 2^6)
   i <- dim-1
   while(i >= 1){
     if(i != round(i)){
-      stop("Dimensions Must Be Perfect Square")
+      stop("Dimension minus 1 must be a power of 2")
     }  
     i <- i/2
   }
