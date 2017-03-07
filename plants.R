@@ -19,3 +19,20 @@ setup.plants <- function(repro, survival, comp.matrix, names=NULL){
   colnames(comp.matrix) <- names
   return(list(repro=repro, survival=survival, comp.matrix=comp.matrix))
 }
+
+survival <- function(cell, info){
+  #checks to see if the cell is underwater
+  if(is.na(cell) | cell < 0){
+    cell <- NA
+  }
+  #checks to see that the cell isn't empty
+  if(cell != ""){
+    #checks to see if the plant in the cell survived
+    if(runif(1) > info$survival[cell]){
+      #plant died, cell is empty
+      cell <- ""
+    }
+  }
+}
+
+plant.timestep <- function()

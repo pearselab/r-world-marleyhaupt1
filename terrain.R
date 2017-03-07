@@ -73,7 +73,7 @@ diamond.square.step <- function(dim){
   return(m)
 }
 
-terrain.func <- function(dim, lakes){ 
+terrain.fun <- function(dim, lakes=TRUE){ 
   m <- diamond.square.step(dim)
   #fills cells of matrix with NAs if the value is less than 0
   if(lakes == TRUE){
@@ -84,7 +84,7 @@ terrain.func <- function(dim, lakes){
         }
       }
     }
-  }  
+  }
   image(m)
 }
 
