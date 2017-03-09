@@ -29,16 +29,16 @@ info <- setup.plants(repro = r, survival = s, comp.matrix = cm, names = names)
 t <- terrain.fun(65)
 
 #initiate plants on the terrain
-init.plants <- function(terrain.matrix, timesteps, names){
-  plants <- array("", dim=c(dim(terrain.matrix), timesteps+1))
-  for(i in nrow(t)){
-    for(j in ncol(t)){
+init.plants <- function(terrain, timesteps, names){
+  plants <- array("", dim=c(dim(terrain), timesteps+1))
+  for(i in nrow(terrain)){
+    for(j in ncol(terrain)){
       plants[i,j,1] <- sample(names,1)
     }
   }
   #puts NAs into plants array where there is water in terrain
   for(i in seq_len(dim(plants)[timesteps+1])){
-    plants[,,i][is.na(terrain.matrix)] <- NA
+    plants[,,i][is.na(terrain)] <- NA
   }
   return(plants)
 }
@@ -80,7 +80,7 @@ reproduce <- function(row, column, plants, info){
 }
   
 ############################################ WORK ON WRAPPER TO SIMULATE PLANTS ON TERRAIN #######
-run.plant.eco <- function(terrain, repro, survive, comp.mat, names=NULL){
+run.plant.eco <- function(timesteps, terrain, repro, survive, comp.mat, names=NULL){
   # include the plant array, survival, reproduction, competition, and plant.timestep functions
 }
   
