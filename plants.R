@@ -20,11 +20,31 @@ setup.plants <- function(repro, survival, comp.matrix, names=NULL){
   return(list(repro=repro, survival=survival, comp.matrix=comp.matrix))
 }
 
-############################################### NEED TO WORK ON ARRAY MORE ######################
-#make an array of plant locations
-plants <- array("", dim=c(dim(terrain), ts+1))
-for(i in seq_len(dim(plants))[3])
-  plants[,,i][is.na(terrain)] <- NA
+#creating some initial parameters to test
+r <- c(0.5,0.5)
+s <- c(0.7, 0.6)
+cm <- matrix(data=c(0.9, 0.7, 0.3, 0.5), 2, 2)
+names <- c("Bill", "Ted")
+info <- setup.plants(repro = r, survival = s, comp.matrix = cm, names = names)
+t <- terrain.fun(65)
+
+#Set a certain number of timesteps
+ts <- 2
+
+#initiate plants on the terrain
+init.plants <- function(terrain.matrix, timesteps, names){
+  plants <- array("", dim=c(dim(terrain.matrix), timesteps+1))
+  for(i in nrow(t)){
+    for(j in ncol(t)){
+      plants[i,j,1] <- sample(names,1)
+    }
+  }
+  #puts NAs into plants array where there is water in terrain
+  for(i in seq_len(dim(plants)[3])){
+    plants[,,i][is.na(terrain.matrix)] <- NA
+  }
+  return(plants)
+}
 
 survival <- function(cell, info){
   #checks to see if the cell is underwater
