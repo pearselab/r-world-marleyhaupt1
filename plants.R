@@ -28,9 +28,6 @@ names <- c("Bill", "Ted")
 info <- setup.plants(repro = r, survival = s, comp.matrix = cm, names = names)
 t <- terrain.fun(65)
 
-#Set a certain number of timesteps
-ts <- 2
-
 #initiate plants on the terrain
 init.plants <- function(terrain.matrix, timesteps, names){
   plants <- array("", dim=c(dim(terrain.matrix), timesteps+1))
@@ -40,7 +37,7 @@ init.plants <- function(terrain.matrix, timesteps, names){
     }
   }
   #puts NAs into plants array where there is water in terrain
-  for(i in seq_len(dim(plants)[3])){
+  for(i in seq_len(dim(plants)[timesteps+1])){
     plants[,,i][is.na(terrain.matrix)] <- NA
   }
   return(plants)
