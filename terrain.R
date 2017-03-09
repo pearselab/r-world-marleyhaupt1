@@ -86,6 +86,7 @@ terrain.fun <- function(dim, lakes=TRUE){
     }
   }
   image(m)
+  return(m)
 }
 
   
