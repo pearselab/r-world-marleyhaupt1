@@ -31,8 +31,8 @@ t <- terrain.fun(65)
 #initiate plants on the terrain
 init.plants <- function(terrain, timesteps, names){
   plants <- array("", dim=c(dim(terrain), timesteps+1))
-  for(i in nrow(terrain)){
-    for(j in ncol(terrain)){
+  for(i in 1:nrow(terrain)){
+    for(j in 1:ncol(terrain)){
       plants[i,j,1] <- sample(names,1)
     }
   }
@@ -81,7 +81,7 @@ reproduce <- function(row, column, plants, info){
   
 ############################################ WORK ON WRAPPER TO SIMULATE PLANTS ON TERRAIN #######
 run.plant.eco <- function(timesteps, terrain, repro, survive, comp.mat, names=NULL){
-  # include the plant array, survival, reproduction, competition, and plant.timestep functions
+  # include the init.plant, survival, reproduction/competition, and plant.timestep functions
 }
   
   
