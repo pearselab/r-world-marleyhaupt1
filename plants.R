@@ -78,9 +78,9 @@ plant.timestep <- function(plants, terrain, info, timesteps){
   #loops through the timesteps
   for(k in 1:(timesteps+1)){
     #loops through the rows
-    for(i in nrow(plants)){
+    for(i in 1:nrow(plants)){
       #loops through the columns
-      for(j in ncol(plants)){
+      for(j in 1:ncol(plants)){
         #applies the survival function to each cell in the matrix
         survival(plants[i,j], info)
         reproduce(row=plants[i,], column=plants[,j], plants, info)
