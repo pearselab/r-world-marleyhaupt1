@@ -1,4 +1,10 @@
-# Plants are Cool!
+#' setup.plants is a function that creates a list of plant info
+#'
+#' @param repro reproduction probability, must be a repro prob for every plant species, a vector with each value between 0 and 1
+#' @param survival survival probability, must be a survival prob for every plant species, a vector with each value between 0 and 1
+#' @param comp.matrix competition matrix of survival probabilities between species, rows and columns must be equal to the number of plant species, each cell is populated with a value between 0 and 1
+#' @param names names of the plants being simulated, if null plants are "a", "b", "c", etc.
+#' @return a list with the repro probability, survival probability, comp matrix probabilities, and names
 
 setup.plants <- function(repro, survival, comp.matrix, names=NULL){
   if(is.null(names)){
@@ -21,15 +27,20 @@ setup.plants <- function(repro, survival, comp.matrix, names=NULL){
 }
 
 #creating some initial parameters to test
-r <- c(0.5,0.5)
-s <- c(0.7, 0.6)
-cm <- matrix(data=c(0.9, 0.7, 0.3, 0.5), 2, 2)
-names <- c("Bill", "Ted")
-info <- setup.plants(repro = r, survival = s, comp.matrix = cm, names = names)
-t <- terrain.fun(65)
+#r <- c(0.5,0.5)
+#s <- c(0.7, 0.6)
+#cm <- matrix(data=c(0.9, 0.7, 0.3, 0.5), 2, 2)
+#names <- c("Bill", "Ted")
+#info <- setup.plants(repro = r, survival = s, comp.matrix = cm, names = names)
+#t <- terrain.fun(65)
 
-#initiate plants on the terrain
-init.plants <- function(terrain, timesteps, names=NULL){
+#' init.plants is a function that creates an array and initiates plants across a terrain
+#'
+#' @param terrain the output of the terrain.fun function
+#' @param timesteps the number of times you want to run the simulation
+#' @param names names of the plants being simulated, if null plants are "a", "b", "c", etc.
+#' @return an array where columns and rows equal columns and rows of terrain and the third dimension equals with timestep + 1 (an initial matrix, plus one matrix for each timestep)
+init.plants <- function(terrain, timesteps, names){
   if(is.null(names)){
     names <- letters[seq_along(repro)]
   }
@@ -47,8 +58,13 @@ init.plants <- function(terrain, timesteps, names=NULL){
 }
 
 #creating a plant array to work with
-plants <- init.plants(terrain = t, timesteps = 2, names=names)
+#plants <- init.plants(terrain = t, timesteps = 2, names=names)
 
+#' survival function determins the if a plant in a given cell survives each timestep
+#'
+#' @param cell the cell (row, col, k) in the array (the output from init.plants) that is being tested
+#' @param info a list and the output from setup.plants
+#' @return "" if the plant died and the name of the plant if it survived
 survival <- function(cell, info){
   #checks to see if the cell is underwater
   if(is.na(cell)){
@@ -66,12 +82,12 @@ survival <- function(cell, info){
 }
 
 ########################################################### NEED TO WORK ON PLANT.TIMESTEP ########
- 
+
 
 #################################################### REPRO AND COMPETITION NEEDS WORK ############
 reproduce <- function(row, column, plants, info){
   pos.loc <- as.matrix(expand.grid(row+c(-1,0,1), col+c(-1,0,1)))
-  
+
 }
 
 plant.timestep <- function(plants, terrain, info, timesteps){
@@ -89,14 +105,14 @@ plant.timestep <- function(plants, terrain, info, timesteps){
   }
   return(new.plants.matrix)
 }
-  
+
 run.plant.eco <- function(timesteps, terrain, repro, survival, comp.matrix, names=NULL){
   info <- setup.plants(repro=repro, survival=survival, comp.matrix=comp.matrix, names = names)
   plants <- init.plants(terrain = terrain, timesteps = timesteps, names = names)
   output <- plant.timestep(plants=plants, terrain=terrain, info=info, timesteps=timesteps)
   return(output)
 }
-  
-  
-  
-  
+
+
+
+
