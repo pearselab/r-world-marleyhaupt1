@@ -1,6 +1,29 @@
-#' Makes a matrix with cell values corresponding to elevations
+#' Makes a matrix with cell numbers corresponding to elevations
 #' 
+#' start.matrix function
+#' @param dim dim corresponds to the dimensions of the matrix; columns must equal rows and must be a power of 2 + 1 (i.e., 5 is 2*2+1)
+#' @return an odd sided matrix with the corners populated with starting value
 #' 
+#' diamond.step function
+#' @param m m is the matrix that is the output of the start.matrix function
+#' @return matrix m with the center cell filled in with the average + noise of the corner values
+#' 
+#' square.step function
+#' @param m m is the matrix that is the output of the diamond.step function
+#' @return matrix m with the top center, bottom center, left center, and right center cells filled in with the average + noise of adjacent cells
+#' 
+#' diamond.square.step function is a wrapper around the start.matrix, diamond.step, and square.step functions
+#' @param dim dim corresponds to the dimensions of the matrix; columns must equal rows and must be a power of 2 + 1 (i.e., 5 is 2*2+1)
+#' @return a matrix where NAs are water and numbers are elevations
+#' 
+#' terrain.fun is a wrapper around diamond.square.step and can also incorporate water into the terrain where a number is negative
+#' @param dim dim corresponds to the dimensions of the matrix; columns must equal rows and must be a power of 2 + 1 (i.e., 5 is 2*2+1)
+#' @param lakes a logical argument that will make all negative numbers in the matrix into water (NAs), default is TRUE
+#' @return a terrain matrix and an image of the terrain matrix. Numbers are heights. NAs are water
+#' @examples 
+#' terrain <- terrain.fun(65)
+#' terrain <- terrain.fun(9)
+#' @export
 
 #creates a matrix with odd dimensions and fills the matrix with NAs
 start.matrix <- function(dim){
