@@ -64,7 +64,7 @@ init.plants <- function(terrain, timesteps, names){
 #'
 #' @param cell the cell (row, col, k) in the array (the output from init.plants) that is being tested
 #' @param info a list and the output from setup.plants
-#' @return "" if the plant died and the name of the plant if it survived
+#' @return returns "" if the plant died and the name of the plant if it survived
 survival <- function(cell, info){
   #checks to see if the cell is underwater
   if(is.na(cell)){
@@ -81,15 +81,13 @@ survival <- function(cell, info){
   return(cell)
 }
 
-#################################################### REPRO AND COMPETITION NEEDS WORK ############
-
 #' reproduce determines if and where a plant will reproduce. Limited to adjacent cells. Also includes a competition function if a cell is already occupied
 #'
 #' @param timesteps the number of times the simulation will run
 #' @param row the number of rows in the matrix. Determined from the number of rows in the Plants array
 #' @param column the number of columns in the matrix. Determined from the number of columns in the Plants array
-#' @param plants the array and output of init.plants function
-#' @param info the list and output of the setup.plants function
+#' @param plants an array and output of init.plants function
+#' @param info a list and output of the setup.plants function
 #' @return returns updated array (timestep) with plant information depending on outcome of simulated repro and competition
 reproduce <- function(timesteps, row, column, plants, info){
   #creates a matrix of possible repro locations
@@ -107,9 +105,9 @@ reproduce <- function(timesteps, row, column, plants, info){
 
 #' plant.timestep is a wrapper around the survival and reproduce functions. Loops through every row, column, and timestep in the plants array
 #'
-#' @param plants the array and output of init.plants function
+#' @param plants an array and output of init.plants function
 #' @param terrain a matrix and the output of the terrain.fun function
-#' @param info the list and output of the setup.plants function
+#' @param info a list and output of the setup.plants function
 #' @param timesteps the number of times the simulation will run
 #' @return a new matrix with the updated plant location info based on the outcome of reproduction, survival, and competition
 plant.timestep <- function(plants, terrain, info, timesteps){
@@ -144,7 +142,5 @@ run.plant.eco <- function(timesteps, terrain, repro, survival, comp.matrix, name
   output <- plant.timestep(plants=plants, terrain=terrain, info=info, timesteps=timesteps)
   return(output)
 }
-
-
 
 
