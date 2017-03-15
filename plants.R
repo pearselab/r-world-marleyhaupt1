@@ -81,13 +81,19 @@ survival <- function(cell, info){
   return(cell)
 }
 
-########################################################### NEED TO WORK ON PLANT.TIMESTEP ########
-
-
 #################################################### REPRO AND COMPETITION NEEDS WORK ############
-reproduce <- function(row, column, plants, info){
-  pos.loc <- as.matrix(expand.grid(row+c(-1,0,1), col+c(-1,0,1)))
-
+reproduce <- function(timestep, row, column, plants, info){
+  #creates a matrix of possible repro locations
+  pos.loc <- as.matrix(expand.grid(row+c(-1,0,1), column+c(-1,0,1)))
+  #If pos repro loc is out of bounds, populates pos.loc with NA
+  pos.loc[pos.loc < 1] <- NA
+  pos.loc[pos.loc > dim(plants)[1]] <- NA
+  #Deletes all rows containing NAs from pos.loc
+  for(i in 9:1){
+    if(is.na(pos.loc[i,1]) | is.na(pos.loc[i,2])){
+      pos.loc <- pos.loc[-i,]
+    }
+  }
 }
 
 plant.timestep <- function(plants, terrain, info, timesteps){
