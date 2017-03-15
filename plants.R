@@ -23,7 +23,7 @@ setup.plants <- function(repro, survival, comp.matrix, names=NULL){
   survival <- setNames(survival, names)
   rownames(comp.matrix) <- names
   colnames(comp.matrix) <- names
-  return(list(repro=repro, survival=survival, comp.matrix=comp.matrix))
+  return(list(repro=repro, survival=survival, comp.matrix=comp.matrix, names=names))
 }
 
 #creating some initial parameters to test
@@ -99,6 +99,14 @@ reproduce <- function(timesteps, row, column, plants, info){
   for(i in 9:1){
     if(is.na(pos.loc[i,1]) | is.na(pos.loc[i,2])){
       pos.loc <- pos.loc[-i,]
+    }
+  }
+  for(t in 1:timesteps){
+    for(p in 1:nrow(plants)){
+      for(n in 1:length(info$names)){
+        if(plants[row,column,t] == info$names[n]){
+        }
+      }
     }
   }
 }
