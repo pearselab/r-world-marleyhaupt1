@@ -1,5 +1,4 @@
 #' setup.plants is a function that creates a list of plant info
-#'
 #' @param repro reproduction probability, must be a repro prob for every plant species, a vector with each value between 0 and 1
 #' @param survival survival probability, must be a survival prob for every plant species, a vector with each value between 0 and 1
 #' @param comp.matrix competition matrix of survival probabilities between species, rows and columns must be equal to the number of plant species, each cell is populated with a value between 0 and 1
@@ -35,7 +34,6 @@ setup.plants <- function(repro, survival, comp.matrix, names=NULL){
 #t <- terrain.fun(65)
 
 #' init.plants is a function that creates an array and initiates plants across a terrain
-#'
 #' @param terrain a matrix and the output of the terrain.fun function
 #' @param timesteps the number of times the simulation will run
 #' @param names names of the plants being simulated, if null plants are "a", "b", "c", etc.
@@ -61,7 +59,6 @@ init.plants <- function(terrain, timesteps, names){
 #plants <- init.plants(terrain = t, timesteps = 2, names=names)
 
 #' survival function determins the if a plant in a given cell survives each timestep
-#'
 #' @param cell the cell (row, col, k) in the array (the output from init.plants) that is being tested
 #' @param info a list and the output from setup.plants
 #' @return returns "" if the plant died and the name of the plant if it survived
@@ -82,37 +79,51 @@ survival <- function(cell, info){
 }
 
 #' reproduce determines if and where a plant will reproduce. Limited to adjacent cells. Also includes a competition function if a cell is already occupied
-#'
 #' @param timesteps the number of times the simulation will run
 #' @param row the number of rows in the matrix. Determined from the number of rows in the Plants array
 #' @param column the number of columns in the matrix. Determined from the number of columns in the Plants array
 #' @param plants an array and output of init.plants function
 #' @param info a list and output of the setup.plants function
 #' @return returns updated array (timestep) with plant information depending on outcome of simulated repro and competition
-reproduce <- function(timesteps, row, column, plants, info){
-  #creates a matrix of possible repro locations
-  pos.loc <- as.matrix(expand.grid(row+c(-1,0,1), column+c(-1,0,1)))
-  #If pos repro loc is out of bounds, populates pos.loc with NA
-  pos.loc[pos.loc < 1] <- NA
-  pos.loc[pos.loc > dim(plants)[1]] <- NA
-  #Deletes all rows containing NAs from pos.loc
-  for(i in 9:1){
-    if(is.na(pos.loc[i,1]) | is.na(pos.loc[i,2])){
-      pos.loc <- pos.loc[-i,]
-    }
-  }
-  for(t in 1:timesteps){
-    for(p in 1:nrow(plants)){
-      for(n in 1:length(info$names)){
-        if(plants[row,column,t] == info$names[n]){
+reproduce <- function(time, row, column, plants, info){
+  #loops through all rows in plants array
+  for(p in 1:nrow(plants)){
+    #loops through all the plant species
+    for(n in 1:length(info$names)){
+      #creates a matrix of possible repro locations
+      pos.loc <- as.matrix(expand.grid(row+c(-1,0,1), column+c(-1,0,1)))
+      #If pos repro loc is out of bounds, populates pos.loc with NA
+      pos.loc[pos.loc < 1] <- NA
+      pos.loc[pos.loc > dim(plants)[1]] <- NA
+      #Deletes all rows containing NAs from pos.loc
+      for(i in 9:1){
+        if(is.na(pos.loc[i,1]) | is.na(pos.loc[i,2])){
+          pos.loc <- pos.loc[-i,]
+        }
+      }
+      #if a cell has a plant in it
+      if(plants[row,column,time] == info$names[n]){
+        #if the plant reproduced
+        if(runif(1) <= info$repro[plants[row, column, time]]){
+          #if the possible repro location does not contain NA (i.e., isn't under water)
+          if(!is.na(plants[pos.loc[p,1], pos.loc[p,2], time])){
+            #if an adjacent cell is a possible repro location and already has a plant in it
+            if(plants[pos.loc[p,1], pos.loc[p,2], time] == info$names[n]){
+              #if the propagule outcompetes the original plant
+              if(runif(1) <= info$comp.matrix[plants[row,column,time], plants[pos.loc[p,1], pos.loc[p,2], time]]){
+                #then the cell gets populated with the new plant
+                plants[pos.loc[p,1], pos.loc[p,2],time] <- plants[row,column,time]
+              }
+            }
+          }
         }
       }
     }
   }
+  return(plants)
 }
 
 #' plant.timestep is a wrapper around the survival and reproduce functions. Loops through every row, column, and timestep in the plants array
-#'
 #' @param plants an array and output of init.plants function
 #' @param terrain a matrix and the output of the terrain.fun function
 #' @param info a list and output of the setup.plants function
@@ -120,22 +131,21 @@ reproduce <- function(timesteps, row, column, plants, info){
 #' @return a new matrix with the updated plant location info based on the outcome of reproduction, survival, and competition
 plant.timestep <- function(plants, terrain, info, timesteps){
   #loops through the timesteps
-  for(k in 1:(timesteps+1)){
+  for(t in 1:(timesteps+1)){
     #loops through the rows
     for(i in 1:nrow(plants)){
       #loops through the columns
       for(j in 1:ncol(plants)){
         #applies the survival function to each cell in the matrix
         survival(plants[i,j], info)
-        reproduce(timesteps, row=plants[i,], column=plants[,j], plants, info)
+        reproduce(time=t, row=plants[i,], column=plants[,j], plants, info)
       }
     }
   }
-  return(new.plants.matrix)
+  return(plants)
 }
 
 #' run.plant.eco is a function that wraps around the setup.plants, init.plants, and plant.timestep functions
-#'
 #' @param timesteps the number of times the simulation will run
 #' @param terrain a matrix and the output of the terrain.fun function
 #' @param repro reproduction probability, must be a repro prob for every plant species, a vector with each value between 0 and 1

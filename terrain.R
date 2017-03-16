@@ -1,34 +1,8 @@
-#' Makes a matrix with cell numbers corresponding to elevations
-#'
-#' start.mat function
+#' Makes a matrix with cell numbers corresponding to elevations s.mat function initiates a matrix and fills in the outside corners with numbers and the rest of the matrix with NAs
 #' @param dim dim corresponds to the dimensions of the matrix; columns must equal rows and must be a power of 2 + 1 (i.e., 5 is 2*2+1)
+#' @importFrom("stats", "runif", "rnorm")
 #' @return an odd sided matrix with the corners populated with starting value
-#'
-#' diamond.step function
-#' @param m m is the matrix that is the output of the start.matrix function
-#' @return matrix m with the center cell filled in with the average + noise of the corner values
-#'
-#' square.step function
-#' @param m m is the matrix that is the output of the diamond.step function
-#' @return matrix m with the top center, bottom center, left center, and right center cells filled in with the average + noise of adjacent cells
-#'
-#' diamond.square.step function is a wrapper around the start.matrix, diamond.step, and square.step functions
-#' @param dim dim corresponds to the dimensions of the matrix; columns must equal rows and must be a power of 2 + 1 (i.e., 5 is 2*2+1)
-#' @return a matrix where NAs are water and numbers are elevations
-#'
-#' terrain.fun is a wrapper around diamond.square.step and can also incorporate water into the terrain where a number is negative
-#' @param dim dim corresponds to the dimensions of the matrix; columns must equal rows and must be a power of 2 + 1 (i.e., 5 is 2*2+1)
-#' @param lakes a logical argument that will make all negative numbers in the matrix into water (NAs), default is TRUE
-#' @return a terrain matrix and an image of the terrain matrix. Numbers are heights. NAs are water
-#' @importFrom graphics image
-#' @importFrom stats runif
-#' @examples
-#' terrain <- terrain.fun(65)
-#' terrain <- terrain.fun(9)
-#' @export
-
-#creates a matrix with odd dimensions and fills the matrix with NAs
-start.mat <- function(dim){
+s.mat <- function(dim){
   #error message if the dimensions aren't odd
   if(dim %% 2 == 0){
     stop("Matrix must have odd dimensions")
@@ -50,7 +24,9 @@ start.mat <- function(dim){
   return(m)
 }
 
-#identifies and fills center
+#' diamond.step fills in the center cell 
+#' @param m m is the matrix that is the output of the start.matrix function
+#' @return matrix m with the center cell filled in with the average + noise of the corner values
 diamond.step <- function(m){
   tl <- m[1,1]
   tr <- m[1, ncol(m)]
@@ -62,7 +38,9 @@ diamond.step <- function(m){
   return(m)
 }
 
-#populates corners
+#' square.step fills in the missing corners 
+#' @param m m is the matrix that is the output of the start.matrix function
+#' @return matrix m with the top center, bottom center, left center, and right center cells filled in with the average + noise of adjacent cells
 square.step <- function(m){
   #assign names to key cells
   tl <- m[1,1]
@@ -83,8 +61,11 @@ square.step <- function(m){
   return(m)
 }
 
+#' diamond.square.step function is a wrapper around the start.matrix, diamond.step, and square.step functions
+#' @param dim dim corresponds to the dimensions of the matrix; columns must equal rows and must be a power of 2 + 1 (i.e., 5 is 2*2+1)
+#' @return a matrix where NAs are water and numbers are elevations
 diamond.square.step <- function(dim){
-  m <- start.mat(dim)
+  m <- s.mat(dim)
   s <- dim-1
   while(s >= 1){ # s is for size of sub-matrix
     for(i in seq(from=1, to=dim-1, by=s)){ #i is for the rows
@@ -98,6 +79,16 @@ diamond.square.step <- function(dim){
   return(m)
 }
 
+#' terrain.fun is a wrapper around diamond.square.step and can also incorporate water into the terrain where a number is negative
+#' @param dim dim corresponds to the dimensions of the matrix; columns must equal rows and must be a power of 2 + 1 (i.e., 5 is 2*2+1)
+#' @param lakes a logical argument that will make all negative numbers in the matrix into water (NAs), default is TRUE
+#' @importFrom("graphics", "image")
+#' @importFrom("stats", "runif")
+#' @return a terrain matrix and an image of the terrain matrix. Numbers are heights. NAs are water
+#' @examples
+#' terrain <- terrain.fun(65)
+#' terrain <- terrain.fun(9)
+#' @export
 terrain.fun <- function(dim, lakes=TRUE){
   m <- diamond.square.step(dim)
   #fills cells of matrix with NAs if the value is less than 0
@@ -113,5 +104,8 @@ terrain.fun <- function(dim, lakes=TRUE){
   image(m)
   return(m)
 }
+
+
+
 
 
