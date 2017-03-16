@@ -62,20 +62,20 @@ init.plants <- function(terrain, timesteps, names){
 #' @param cell the cell (row, col, k) in the array (the output from init.plants) that is being tested
 #' @param info a list and the output from setup.plants
 #' @return returns "" if the plant died and the name of the plant if it survived
-survival <- function(cell, info){
+survival <- function(plants, row, column, time, info){
   #checks to see if the cell is underwater
-  if(is.na(cell)){
-    cell <- NA
+  if(is.na(plants[row, column, time])){
+    plants[row,column, time] <- NA
   }
   #checks to see that the cell isn't empty
-  if(cell != ""){
+  if(plants[row, column, time] != ""){
     #checks to see if the plant in the cell survived
-    if(runif(1) > info$survival[cell]){
+    if(runif(1) > info$survival[plants[row, column, time]]){
       #plant died, cell is empty
-      cell <- ""
+      plants[row, column, time] <- ""
     }
   }
-  return(cell)
+  return(plants[row, column, time])
 }
 
 #' reproduce determines if and where a plant will reproduce. Limited to adjacent cells. Also includes a competition function if a cell is already occupied
@@ -88,31 +88,34 @@ survival <- function(cell, info){
 reproduce <- function(time, row, column, plants, info){
   #loops through all rows in plants array
   for(p in 1:nrow(plants)){
+    #creates a matrix of possible repro locations
+    pos.loc <- as.matrix(expand.grid(row+c(-1,0,1), column+c(-1,0,1)))
+    #If pos repro loc is out of bounds, populates pos.loc with NA
+    pos.loc[pos.loc < 1] <- NA
+    pos.loc[pos.loc > dim(plants)[1]] <- NA
+    #Deletes all rows containing NAs from pos.loc
+    for(i in 9:1){
+      if(is.na(pos.loc[i,1]) | is.na(pos.loc[i,2])){
+        pos.loc <- pos.loc[-i,]
+      }
+    }
     #loops through all the plant species
     for(n in 1:length(info$names)){
-      #creates a matrix of possible repro locations
-      pos.loc <- as.matrix(expand.grid(row+c(-1,0,1), column+c(-1,0,1)))
-      #If pos repro loc is out of bounds, populates pos.loc with NA
-      pos.loc[pos.loc < 1] <- NA
-      pos.loc[pos.loc > dim(plants)[1]] <- NA
-      #Deletes all rows containing NAs from pos.loc
-      for(i in 9:1){
-        if(is.na(pos.loc[i,1]) | is.na(pos.loc[i,2])){
-          pos.loc <- pos.loc[-i,]
-        }
-      }
+      #chooses a cell to reproduce into
+      r <- sample(pos.loc[,1],1)
+      c <- sample(pos.loc[,2],1)
       #if a cell has a plant in it
       if(plants[row,column,time] == info$names[n]){
         #if the plant reproduced
         if(runif(1) <= info$repro[plants[row, column, time]]){
-          #if the possible repro location does not contain NA (i.e., isn't under water)
-          if(!is.na(plants[pos.loc[p,1], pos.loc[p,2], time])){
+          #if the repro location does not contain NA (i.e., isn't under water)
+          if(!is.na(plants[r, c, time])){
             #if an adjacent cell is a possible repro location and already has a plant in it
-            if(plants[pos.loc[p,1], pos.loc[p,2], time] == info$names[n]){
+            if(plants[r, c, time] == info$names[n]){
               #if the propagule outcompetes the original plant
-              if(runif(1) <= info$comp.matrix[plants[row,column,time], plants[pos.loc[p,1], pos.loc[p,2], time]]){
+              if(runif(1) <= info$comp.matrix[plants[row,column,time], plants[r, c, time]]){
                 #then the cell gets populated with the new plant
-                plants[pos.loc[p,1], pos.loc[p,2],time] <- plants[row,column,time]
+                plants[r, c, time] <- plants[row,column,time]
               }
             }
           }
@@ -120,7 +123,7 @@ reproduce <- function(time, row, column, plants, info){
       }
     }
   }
-  return(plants)
+  return(plants[row, column, time])
 }
 
 #' plant.timestep is a wrapper around the survival and reproduce functions. Loops through every row, column, and timestep in the plants array
@@ -137,8 +140,8 @@ plant.timestep <- function(plants, terrain, info, timesteps){
       #loops through the columns
       for(j in 1:ncol(plants)){
         #applies the survival function to each cell in the matrix
-        survival(plants[i,j], info)
-        reproduce(time=t, row=plants[i,], column=plants[,j], plants, info)
+        survival(plants, i, j, t, info)
+        reproduce(t, i, j, plants, info)
       }
     }
   }
