@@ -67,13 +67,15 @@ survival <- function(plants, row, column, time, info){
   if(is.na(plants[row, column, time])){
     plants[row,column, time] <- NA
   }
-  #checks to see that the cell isn't empty
-  if(plants[row, column, time] != ""){
-    #checks to see if the plant in the cell survived
-    if(runif(1) > info$survival[plants[row, column, time]]){
-      #plant died, cell is empty
-      plants[row, column, time] <- ""
-    }
+  for(n in 1:length(info$names)){
+    #if the cell has a plant in it
+    if(isTRUE(plants[row, column, time] == info$names[n])){
+      #checks to see if the plant in the cell survived
+      if(runif(1) > info$survival[plants[row, column, time]]){
+        #plant died, cell is empty
+        plants[row, column, time] <- ""
+      }
+    } 
   }
   return(plants[row, column, time])
 }
@@ -102,20 +104,20 @@ reproduce <- function(time, row, column, plants, info){
     #loops through all the plant species
     for(n in 1:length(info$names)){
       #chooses a cell to reproduce into
-      r <- sample(pos.loc[,1],1)
-      c <- sample(pos.loc[,2],1)
+      pr <- sample(pos.loc[,1],1)
+      pc <- sample(pos.loc[,2],1)
       #if a cell has a plant in it
-      if(plants[row,column,time] == info$names[n]){
+      if(isTRUE(plants[row,column,time] == info$names[n])){
         #if the plant reproduced
         if(runif(1) <= info$repro[plants[row, column, time]]){
           #if the repro location does not contain NA (i.e., isn't under water)
-          if(!is.na(plants[r, c, time])){
+          if(!is.na(plants[pr, pc, time])){
             #if an adjacent cell is a possible repro location and already has a plant in it
-            if(plants[r, c, time] == info$names[n]){
+            if(isTRUE(plants[pr, pc, time] == info$names[n])){
               #if the propagule outcompetes the original plant
-              if(runif(1) <= info$comp.matrix[plants[row,column,time], plants[r, c, time]]){
+              if(runif(1) <= info$comp.matrix[plants[row,column,time], plants[pr, pc, time]]){
                 #then the cell gets populated with the new plant
-                plants[r, c, time] <- plants[row,column,time]
+                plants[pr, pc, time] <- plants[row,column,time]
               }
             }
           }
